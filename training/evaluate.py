@@ -1,4 +1,3 @@
-"""Evaluate a trained SafeVision model on validation or a held-out test split."""
 from __future__ import annotations
 
 import argparse
