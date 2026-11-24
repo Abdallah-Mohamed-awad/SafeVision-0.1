@@ -1,0 +1,18 @@
+{
+  "source": "Previously executed SafeVision_Colab_Training (1).ipynb",
+  "status": "historical_baseline_validation_only",
+  "model_training": {
+    "YOLO26n": {"epochs_max": 50, "batch": 8, "imgsz": 640, "seed": 42, "patience": 12},
+    "YOLO26s": {"epochs_max": 50, "batch": 4, "imgsz": 640, "seed": 42, "patience": 12}
+  },
+  "metrics": [
+    {"model": "YOLO26n", "precision": 0.858755201090497, "recall": 0.6887725462167671, "mAP50": 0.7489593931025209, "mAP50_95": 0.5341135178335314},
+    {"model": "YOLO26s", "precision": 0.877609, "recall": 0.767870, "mAP50": 0.815548, "mAP50_95": 0.600138}
+  ],
+  "notes": [
+    "These are metrics measured on the published 200-image validation split, not an independent test set.",
+    "The prior comparison used different batch sizes and is not fully controlled.",
+    "The previous notebook exported YOLO26n because USE_SMALL was False.",
+    "The improved training experiment must be executed before any new metric is claimed."
+  ]
+}

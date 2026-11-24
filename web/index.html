@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SafeVision AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0F1C2B;--ink2:#17283B;--blue:#005AA7;--yellow:#F2C200;--red:#FF4B3E;--green:#19C37D;--paper:#F3F5F7;--line:#CFD6DD;--mute:#5B6B7B}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Public Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh}
+.stripe{height:10px;background:repeating-linear-gradient(-45deg,var(--yellow) 0 12px,var(--ink) 12px 24px)}
+header{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:18px 32px}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto}
+.name{font-family:'Archivo',sans-serif;font-stretch:125%;font-weight:800;font-size:1.7rem;display:flex;align-items:center;gap:8px}
+.name i{font-style:normal;background:var(--blue);color:#fff;font-size:.8rem;padding:4px 8px;border-radius:3px}
+.modes{display:flex;border:2px solid var(--ink);border-radius:4px;overflow:hidden}
+.modes button{font:700 .95rem 'Archivo',sans-serif;padding:10px 22px;border:0;background:#fff;cursor:pointer;color:var(--ink)}
+.modes button+button{border-left:2px solid var(--ink)}
+.modes button[aria-selected=true]{background:var(--ink);color:#fff}
+.sens{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--mute)}
+.sens input{accent-color:var(--blue);width:130px}.sens output{font-weight:700;color:var(--ink);width:2.4em}
+main{display:grid;grid-template-columns:1fr 390px;gap:24px;padding:0 32px 40px;max-width:1500px;margin:auto}
+.stage{background:var(--ink);border-radius:6px;overflow:hidden;display:flex;flex-direction:column;min-height:560px}
+.screen{position:relative;flex:1;min-height:480px;background:radial-gradient(circle at 50% 40%,var(--ink2),var(--ink))}
+.screen video,.screen img,.screen canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none}
+.screen[data-view=video] video,.screen[data-view=img] img{display:block}
+.screen:not([data-view=empty]) canvas{display:block}
+.screen::before,.screen::after{content:"";position:absolute;inset:18px;pointer-events:none;z-index:3;
+ background:linear-gradient(#fff,#fff) 0 0/26px 3px,linear-gradient(#fff,#fff) 0 0/3px 26px,linear-gradient(#fff,#fff) 100% 0/26px 3px,linear-gradient(#fff,#fff) 100% 0/3px 26px;background-repeat:no-repeat;opacity:.55}
+.screen::after{transform:rotate(180deg)}
+.scan{position:absolute;left:0;right:0;top:0;height:3px;z-index:4;display:none;background:linear-gradient(90deg,transparent,var(--yellow),transparent);box-shadow:0 0 24px var(--yellow)}
+.screen.busy .scan{display:block;animation:sweep 1.5s ease-in-out infinite alternate}
+@keyframes sweep{to{top:calc(100% - 3px)}}
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;color:#fff;padding:40px;z-index:2}
+.screen:not([data-view=empty]) .empty{display:none}
+.screen.drag{outline:3px dashed var(--yellow);outline-offset:-12px}
+.empty h2{font-family:'Archivo',sans-serif;font-stretch:112%;font-weight:800;font-size:1.9rem}
+.empty p{color:#9FB2C5;max-width:44ch}
+.btn{font:800 1rem 'Archivo',sans-serif;background:var(--yellow);color:var(--ink);border:0;border-radius:4px;padding:13px 26px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{filter:brightness(1.08)}.btn.ghost{background:transparent;color:#fff;border:2px solid #fff;padding:9px 18px}
+.bar{display:flex;align-items:center;gap:14px;padding:12px 18px;background:#0A1420;color:#C9D6E3;font-size:.9rem;min-height:56px}
+.bar .actions{margin-left:auto;display:flex;gap:10px}
+.dot{width:10px;height:10px;border-radius:50%;background:#6B7C8E}.live .dot{background:var(--red);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.panel{display:flex;flex-direction:column;gap:16px}
+.verdict{--c:var(--mute);display:flex;gap:18px;align-items:center;background:#fff;border:1px solid var(--line);border-left:12px solid var(--c);border-radius:4px;padding:18px 20px}
+.verdict.bad{--c:#D7261E}.verdict.ok{--c:#00875A}
+.verdict.pop svg{animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.5);opacity:0}}
+.vt{font-family:'Archivo',sans-serif;font-stretch:112%;font-weight:800;font-size:1.35rem;line-height:1.1;color:var(--c)}
+.vs{margin-top:6px;font-size:.92rem}.vn{margin-top:8px;font-size:.76rem;color:var(--mute)}
+.strip{display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border:1px solid var(--line);border-radius:4px}
+.strip div{padding:14px 16px;border-right:1px solid var(--line)}.strip div:last-child{border:0}
+.strip b{display:block;font:800 2rem/1 'Archivo',sans-serif;font-variant-numeric:tabular-nums}.strip span{font-size:.8rem;color:var(--mute)}
+.card{background:#fff;border:1px solid var(--line);border-radius:4px;padding:6px 18px}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.row i{width:12px;height:12px;border-radius:50%;flex:none}.row span{flex:1}.row b{font-variant-numeric:tabular-nums}
+.none-msg{padding:14px 0;color:var(--mute);font-size:.9rem}
+h3{font:800 1rem 'Archivo',sans-serif;margin:4px 0 -6px}
+#feed{list-style:none;padding:0;font-size:.85rem}#feed li{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+#feed time{color:var(--mute);font-variant-numeric:tabular-nums}
+@media(max-width:980px){main{grid-template-columns:1fr;padding:0 16px 32px}header{padding:14px 16px}.screen{min-height:340px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<header>
+  <div class="brand">
+    <svg width="46" height="46" viewBox="0 0 48 48"><circle cx="24" cy="24" r="23" fill="#005AA7"/><path d="M14 20v-6h6M34 20v-6h-6M14 28v6h6M34 28v6h-6" stroke="#fff" stroke-width="3" fill="none"/><circle cx="24" cy="24" r="4.5" fill="#F2C200"/></svg>
+    <div class="name">SafeVision<i>AI</i></div>
+  </div>
+  <nav class="modes" role="tablist" aria-label="Input">
+    <button role="tab" data-mode="camera" aria-selected="true">Camera</button>
+    <button role="tab" data-mode="photo" aria-selected="false">Photo</button>
+    <button role="tab" data-mode="video" aria-selected="false">Video</button>
+  </nav>
+  <label class="sens">Sensitivity <input id="conf" type="range" min="5" max="95" step="5" value="35"><output id="confv">0.35</output></label>
+</header>
+<main>
+  <section class="stage">
+    <div class="screen" id="screen" data-view="empty">
+      <video id="vid" playsinline muted></video><img id="img" alt="">
+      <canvas id="ov"></canvas><div class="scan"></div>
+      <div class="empty" id="empty"></div>
+    </div>
+    <div class="bar" id="bar"><span class="dot"></span><span id="status">Ready</span><div class="actions" id="actions"></div></div>
+  </section>
+  <aside class="panel">
+    <div class="verdict" id="verdict"></div>
+    <div class="strip"><div><b id="nP">0</b><span>People</span></div><div><b id="nO">0</b><span>PPE items</span></div><div><b id="nB">0</b><span>Missing PPE</span></div></div>
+    <div class="card" id="rows"></div>
+    <h3>Event feed</h3>
+    <div class="card"><ul id="feed"></ul></div>
+  </aside>
+</main>
+<input type="file" id="file" hidden>
+<script>
+const $=s=>document.querySelector(s);
+const LABEL={Person:'People',forklift:'Forklifts',helmet:'Helmet',vest:'Vest',gloves:'Gloves',boots:'Boots',goggles:'Goggles',no_helmet:'Helmet missing',no_vest:'Vest missing',no_gloves:'Gloves missing',no_boots:'Boots missing',no_goggle:'Goggles missing'};
+const PPE=['helmet','vest','gloves','boots','goggles'];
+const kind=n=>n.startsWith('no_')?'bad':PPE.includes(n)?'ok':'info';
+const COLOR={bad:'#FF4B3E',ok:'#19C37D',info:'#4DA3FF'};
+const SIGN={
+ bad:'<svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#fff" stroke="#D7261E" stroke-width="8"/><path d="M14 14L50 50" stroke="#D7261E" stroke-width="8"/></svg>',
+ ok:'<svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#00875A"/><path d="M18 33l10 10 19-22" stroke="#fff" stroke-width="7" fill="none"/></svg>',
+ none:'<svg width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#fff" stroke="#8A97A5" stroke-width="6" stroke-dasharray="7 5"/><path d="M22 32h20" stroke="#8A97A5" stroke-width="6"/></svg>'};
+const MODE_COPY={
+ camera:['Check workers live','Your camera feed is inspected in real time. Boxes appear on the people and PPE it finds.','Start camera'],
+ photo:['Inspect a photo','Drop a JPG, PNG or WebP here. You get the verdict in a second.','Choose a photo'],
+ video:['Inspect a video','Drop an MP4, AVI, MOV or MKV. Frames are sampled to keep it quick.','Choose a video']};
+let mode='camera',stream=null,live=false,file=null,last={state:'none',bad:0};
+
+const plural=(n,w)=>n+' '+w+(n==1?'':'s');
+const conf=()=>$('#conf').value/100;
+const media=()=>$('#screen').dataset.view==='img'?$('#img'):$('#vid');
+function status(t,liveOn){$('#status').textContent=t;$('#bar').classList.toggle('live',!!liveOn)}
+function actions(html){$('#actions').innerHTML=html}
+function view(v){$('#screen').dataset.view=v}
+function clearOverlay(){const c=$('#ov');c.getContext('2d').clearRect(0,0,c.width,c.height)}
+function fail(e){live=false;stopStream();$('#screen').classList.remove('busy');status(e.message||'Something went wrong');setMode(mode,true,e.message)}
+
+function setMode(m,keepStatus,err){
+  mode=m;live=false;stopStream();clearOverlay();file=null;view('empty');
+  $('#vid').removeAttribute('src');$('#vid').controls=false;$('#img').removeAttribute('src');
+  document.querySelectorAll('.modes button').forEach(b=>b.setAttribute('aria-selected',b.dataset.mode===m));
+  const [h,p,b]=MODE_COPY[m];
+  $('#empty').innerHTML=`<h2>${err?'Could not continue':h}</h2><p>${err||p}</p><button class="btn" id="cta">${b}</button>`;
+  $('#cta').onclick=m==='camera'?startCam:()=>pick(m);
+  if(!keepStatus)status('Ready');actions('');renderPanel({});
+}
+function stopStream(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+function pick(m){const f=$('#file');f.accept=m==='photo'?'image/*':'video/*';f.value='';f.click()}
+
+async function startCam(){
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}},audio:false})}
+  catch(e){return fail(new Error('Camera is blocked. Allow camera access in the browser. Cameras also need HTTPS or localhost.'))}
+  const v=$('#vid');v.srcObject=stream;await v.play();view('video');live=true;
+  status('Live inspection',true);actions('<button class="btn ghost" id="stop">Stop</button>');$('#stop').onclick=()=>setMode('camera');loop();
+}
+async function detect(blob){
+  const f=new FormData();f.append('file',blob,'f.jpg');f.append('conf',conf());
+  const r=await fetch('/api/detect',{method:'POST',body:f});
+  if(!r.ok)throw new Error((await r.json().catch(()=>({}))).detail||'Server error '+r.status);
+  return r.json();
+}
+async function loop(){
+  const v=$('#vid'),cv=document.createElement('canvas');
+  while(live){
+    if(!v.videoWidth){await new Promise(r=>setTimeout(r,100));continue}
+    const s=Math.min(1,640/v.videoWidth);cv.width=v.videoWidth*s;cv.height=v.videoHeight*s;
+    cv.getContext('2d').drawImage(v,0,0,cv.width,cv.height);
+    const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.7));
+    try{const d=await detect(blob);if(!live)break;draw(d.boxes);renderPanel(d.counts)}catch(e){fail(e);break}
+  }
+}
+async function analyzeImage(){
+  if(!file)return;$('#screen').classList.add('busy');status('Inspecting photo...');
+  try{const d=await detect(file);draw(d.boxes);renderPanel(d.counts);status('Photo inspected')}catch(e){return fail(e)}
+  $('#screen').classList.remove('busy');
+}
+async function analyzeVideo(){
+  $('#screen').classList.add('busy');status('Inspecting video, this can take a minute...');actions('');
+  const f=new FormData();f.append('file',file);f.append('conf',conf());
+  try{
+    const r=await fetch('/api/video',{method:'POST',body:f});
+    const d=await r.json();if(!r.ok)throw new Error(d.detail||'Server error '+r.status);
+    const v=$('#vid');v.src=d.url;v.controls=true;v.muted=false;
+    renderPanel(d.counts,`across ${plural(d.frames,'sampled frame')}`);
+    status('Inspected '+plural(d.frames,'frame'));
+    actions(`<a class="btn ghost" href="${d.url}" download>Download video</a>`);
+  }catch(e){return fail(e)}
+  $('#screen').classList.remove('busy');
+}
+$('#file').onchange=e=>{const f=e.target.files[0];if(f)load(f)};
+function load(f){
+  file=f;const url=URL.createObjectURL(f);clearOverlay();
+  if(mode==='photo'){const i=$('#img');i.onload=analyzeImage;i.src=url;view('img');
+    actions('<button class="btn ghost" id="again">New photo</button>');$('#again').onclick=()=>pick('photo')}
+  else{const v=$('#vid');v.src=url;v.controls=true;view('video');status(f.name);
+    actions('<button class="btn" id="run">Run inspection</button>');$('#run').onclick=analyzeVideo}
+}
+const sc=$('#screen');
+['dragover','dragenter'].forEach(t=>sc.addEventListener(t,e=>{e.preventDefault();if(mode!=='camera')sc.classList.add('drag')}));
+['dragleave','drop'].forEach(t=>sc.addEventListener(t,()=>sc.classList.remove('drag')));
+sc.addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&mode!=='camera')load(f)});
+
+function draw(boxes){
+  const m=media(),c=$('#ov'),W=sc.clientWidth,H=sc.clientHeight,dpr=devicePixelRatio||1;
+  c.width=W*dpr;c.height=H*dpr;const x=c.getContext('2d');x.scale(dpr,dpr);
+  const mw=m.videoWidth||m.naturalWidth,mh=m.videoHeight||m.naturalHeight;if(!mw)return;
+  const s=Math.min(W/mw,H/mh),ox=(W-mw*s)/2,oy=(H-mh*s)/2;
+  x.font='700 12px "Public Sans"';x.lineWidth=2.5;
+  for(const b of boxes){
+    const col=COLOR[kind(b.cls)],[x1,y1,x2,y2]=b.box;
+    const X=ox+x1*mw*s,Y=oy+y1*mh*s,w=(x2-x1)*mw*s,h=(y2-y1)*mh*s;
+    const t=(LABEL[b.cls]||b.cls)+' '+Math.round(b.conf*100),tw=x.measureText(t).width+10,ty=Y<20?Y:Y-20;
+    x.strokeStyle=col;x.strokeRect(X,Y,w,h);x.fillStyle=col;x.fillRect(X-1,ty,tw,20);x.fillStyle='#07101a';x.fillText(t,X+4,ty+14);
+  }
+}
+function renderPanel(counts,scope='in view'){
+  const n=k=>counts[k]||0,people=n('Person'),names=Object.keys(counts);
+  const ppe=PPE.reduce((a,k)=>a+n(k),0),bad=names.filter(k=>kind(k)==='bad').reduce((a,k)=>a+n(k),0);
+  const state=bad?'bad':(ppe||people)?'ok':'none';
+  const T={bad:['Missing PPE detected',`${plural(bad,'missing-PPE detection')} ${scope}. Review before clearing the area.`],
+    ok:['No missing PPE detected',`${plural(ppe,'PPE item')} and ${plural(people,'person')} found ${scope}.`],
+    none:['Nothing detected','Start an inspection. Results appear here.']}[state];
+  const v=$('#verdict');
+  const changed=v.dataset.state!==state;v.dataset.state=state;v.className='verdict '+state+(changed?' pop':'');
+  v.innerHTML=SIGN[state]+`<div><div class="vt">${T[0]}</div><div class="vs">${T[1]}</div><div class="vn">Flagged regions are not matched to a specific worker. A safety officer should confirm every alert.</div></div>`;
+  $('#nP').textContent=people;$('#nO').textContent=ppe;$('#nB').textContent=bad;
+  const order={bad:0,ok:1,info:2};
+  $('#rows').innerHTML=names.length?names.sort((a,b)=>order[kind(a)]-order[kind(b)]).map(k=>`<div class="row"><i style="background:${COLOR[kind(k)]}"></i><span>${LABEL[k]||k}</span><b>${counts[k]}</b></div>`).join(''):'<div class="none-msg">Nothing to list yet.</div>';
+  if(bad>last.bad||(state!==last.state&&state!=='none'))feed(state,bad?`${plural(bad,'missing-PPE detection')}`:'All visible PPE in place');
+  last={state,bad};
+}
+function feed(state,text){
+  const li=document.createElement('li');
+  li.innerHTML=`<time>${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'})}</time><span style="color:${state==='bad'?'#D7261E':'#00875A'};font-weight:600">${text}</span>`;
+  const f=$('#feed');f.prepend(li);while(f.children.length>8)f.lastChild.remove();
+}
+document.querySelectorAll('.modes button').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+let t;$('#conf').oninput=e=>{$('#confv').textContent=(e.target.value/100).toFixed(2);clearTimeout(t);t=setTimeout(()=>{if(mode==='photo'&&file)analyzeImage()},300)};
+setMode('camera');
+</script>
+</body>
+</html>

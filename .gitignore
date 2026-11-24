@@ -1,0 +1,40 @@
+# Python environments and cache
+.venv/
+.venv-api/
+venv/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+.streamlit/credentials.toml
+
+# Generated training data and artifacts (keep notebooks and training source)
+datasets/
+runs/
+
+# Temporary runtime output
+*.log
+temp/
+tmp/
+safevision/
+*.mp4
+*.avi
+*.mov
+*.mkv
+.DS_Store
+Thumbs.db
+
+# Keep only the selected deployment checkpoint in normal Git history.
+models/*.pt
+models/**/*.pt
+!models/best.pt
+
+yolo26s.pt
